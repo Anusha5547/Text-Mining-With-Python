@@ -1,0 +1,43 @@
+Step 3. Visualize your Results
+So far we’ve used an API to gather text from Twitter, and used our Text Analysis API to analyze whether people were speaking positively or negatively in their Tweet. At this point, you have a couple of options with what you do with the results. You can feed this structured information about sentiment into whatever solution you’re building, which could be anything from a simple social listening app or a even an automated report on the public reaction to a campaign. You could also use the data to build informative visualizations, which is what we’ll do in this final step.
+
+For this step, we’re going to use matplotlib to visualize our data and Pandas to read the .csv file, two Python libraries that are easy to get up and running. You’ll be able to create a visualization from the command line or save it as a .png file.
+
+Install both using pip:
+
+
+pip install matplotlib
+pip install pandas
+The script below opens up our .csv file, and then uses Pandas to read the column titled “Sentiment”. It uses Counter to count how many times each sentiment appears, and then matplotlib plots Counter’s results to a color-coded pie chart (you’ll need to enter your search query to the “yourtext” variable for presentation reasons).
+
+
+## import the libraries
+import matplotlib.pyplot as plt 
+import pandas as pd
+from collections import Counter
+import csv 
+
+## open up your csv file with the sentiment results
+with open('your_csv_file_from_step_2.csv', 'r', encoding = 'utf8') as csvfile:
+    ## use Pandas to read the “Sentiment” column,
+        df = pd.read_csv(csvfile)
+    sent = df["Sentiment"]
+
+## use Counter to count how many times each sentiment appears
+## and save each as a variable
+    counter = Counter(sent)
+    positive = counter['positive']
+    negative = counter['negative']
+    neutral = counter['neutral']
+
+## declare the variables for the pie chart, using the Counter variables for “sizes”
+labels = 'Positive', 'Negative', 'Neutral'
+sizes = [positive, negative, neutral]
+colors = ['green', 'red', 'grey']
+yourtext = "Your Search Query from Step 2"
+
+## use matplotlib to plot the chart
+plt.pie(sizes, labels = labels, colors = colors, shadow = True, startangle = 90)
+plt.title("Sentiment of 200 Tweets about "+yourtext)
+plt.show()
+If you want to save your chart to a .png file instead of just showing it, replace plt.show on the last line with savefig(‘your chart name.png’). Below is the visualization we ended up with (we searched “Trump” in step 1).

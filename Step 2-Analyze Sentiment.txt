@@ -1,0 +1,54 @@
+Step 2. Analyze Sentiment
+So once we’ve collected the text of the Tweets that you want to analyze, we can use more advanced NLP tools to start extracting information from it. Sentiment analysis is a great example of this, since it tells us whether people were expressing positive, negative, or neutral sentiment in the text that we have.
+
+For sentiment analysis, we’re going to use our own AYLIEN Text API. Just like with the Twitter Search API, you’ll need to sign up for the free plan to grab your API key (don’t worry — free means free permanently. There’s no credit card required, and we don’t harass you with promotional stuff!). This plan gives you 1,000 calls to the API per month free of charge.
+
+Again, you can install using pip:
+
+
+pip install aylien-apiclient
+Then make sure the SDK has installed correctly from your Python shell:
+
+
+>>>from aylienapiclient import textapi
+Once you’ve got your App key and Application ID, insert them into the code below to get started with your first call to the API from the Python shell (we also have extensive documentation in 7 popular languages). Our API lets you make your first call to the API with just four lines of code:
+
+
+>>>from aylienapiclient import textapi
+>>>client = textapi.Client("Your_app_ID", "Your_application_key")
+>>>sentiment = client.Sentiment({'text': 'enter some of your own text here'})
+>>>print(sentiment)
+This will return JSON results to you with metadata, just like our results from the Twitter API.
+
+So now we need to analyze our corpus from step 1. To do this, we need to analyze every Tweet separately. The script below uses the io module to open up a new .csv file and write the column headers “Tweet” and “Sentiment”, and then it opens and reads the .txt file containing our Tweets. Then, for each Tweet in the .txt file it sends the text to the AYLIEN API, extracts the sentiment prediction from the JSON that the AYLIEN API returns, and writes this to the .csv file beside the Tweet itself.
+
+This will give us a .csv file with two columns — the text of a Tweet and the sentiment of the Tweet, as predicted by the AYLIEN API. We can look through this file to verify the results, and also visualize our results to see some metrics on how people felt about whatever our search query was.
+
+
+from aylienapiclient import textapi
+import csv, io
+
+## Initialize a new client of AYLIEN Text API
+client = textapi.Client("your_app_ID", "your_app_key")
+
+with io.open('Trump_Tweets.csv', 'w', encoding='utf8', newline='') as csvfile:
+    csv_writer = csv.writer(csvfile)
+    csv_writer.writerow(["Tweet", "Sentiment"])
+    with io.open("Trump.txt", 'r', encoding='utf8') as f:
+        for tweet in f.readlines():
+        	## Remove extra spaces or newlines around the text
+        	tweet = tweet.strip()
+
+        	## Reject tweets which are empty so you don’t waste your API credits
+        	if len(tweet) == 0:
+        		print('skipped')
+        		continue
+        	
+        	print(tweet)
+
+        	## Make call to AYLIEN Text API
+        	sentiment = client.Sentiment({'text': tweet})
+
+        	## Write the sentiment result into csv file
+        	csv_writer.writerow([sentiment['text'], sentiment['polarity']])
+You might notice on the final line of the script that when the script goes to write the Tweet text to the file, we’re actually writing the Tweet as it is returned by the AYLIEN API, rather than the Tweet from the .txt file. They are both identical pieces of text, but we’ve chosen to write the text from the API just to make sure we’re reading the exact text that the API analyzed. This is just to make it clearer if we’ve made an error somehow.

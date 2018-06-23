@@ -1,0 +1,46 @@
+Step 1. Build a Corpus
+You can build your corpus from anywhere — maybe you have a large collection of emails you want to analyze, a collection of customer feedback in NPS surveys that you want to dive into, or maybe you want to focus on the voice of your customers online. There are lots of options open to you, but for the purpose of this post we’re going to use Twitter as our focus for building a corpus. Twitter is a very useful source of textual content: it’s easily accessible, it’s public, and it offers an insight into a huge volume of text that contains public opinion.
+
+Accessing the Twitter Search API using Python is pretty easy. There are lots of libraries available, but our favourite option is Tweepy. In this step, we’re going to use Tweepy to ask the Twitter API for 500 of the most recent Tweets that contain our search term, and then we’ll write the Tweets to a text file, with each Tweet on its own line. This will make it easy for us to analyze each Tweet separately in the next step.
+
+You can install Tweepy using pip:
+
+pip install tweepy
+Once completed, open a Python shell to double-check that it’s been installed correctly:
+
+>>> import tweepy
+First, we need to get permission from Twitter to gather Tweets from the Search API, so you need to sign up as a developer to get your consumer keys and access tokens, which should take you three or four minutes. Next, you need to build your search query by adding your search term to the q = ‘’ field. You will also need to add some further parameters like the language, the amount of results you want returned, and the time period to search in. You can get very specific about what you want to search for on Twitter; to make a more complicated query, take a look at the list of operators you can use the API to search with in the Search API introduction.
+
+Fill your credentials and your query into this script:
+
+
+## import the libraries
+import tweepy, codecs
+
+## fill in your Twitter credentials 
+consumer_key = ‘your consumer key here’
+consumer_secret = ‘your consumer secret key here’
+access_token = ‘your access token here’
+access_token_secret = ‘your access token secret here’
+
+## let Tweepy set up an instance of the REST API
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
+## fill in your search query and store your results in a variable
+results = api.search(q = "your search term here", lang = "en", result_type = "recent", count = 1000)
+
+## use the codecs library to write the text of the Tweets to a .txt file
+file = codecs.open("your text file name here.txt", "w", "utf-8")
+for result in results:
+    file.write(result.text)
+    file.write("\n")
+file.close()
+You can see in the script that we are writing result.text to a .txt file and not simply the result, which is what the API is returning to us. APIs that return language data from social media or online journalism sites usually return lots of metadata along with your results. To do this, they format their output in JSON, which is easy for machines to read.
+
+For example, in the script above, every “result” is its own JSON object, with “text” being just one field — the one that contains the Tweet text. Other fields in the JSON file contain metadata like the location or timestamp of the Tweet, which you can extract for a more detailed analysis.
+
+To access the rest of the metadata, we’d need to write to a JSON file, but for this project we’re just going to analyze the text of people’s Tweets. So in this case, a .txt file is fine, and our script will just forget the rest of the metadata once it finishes. If you want to take a look at the full JSON results, print everything the API returns to you instead:
+
+This is also why we used codecs module, to avoid any formatting issues when the script reads the JSON results and writes utf-8 text.
